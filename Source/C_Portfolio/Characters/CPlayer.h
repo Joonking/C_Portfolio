@@ -2,13 +2,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Weapons/IRifle.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
-class C_PORTFOLIO_API ACPlayer : public ACharacter
+class C_PORTFOLIO_API ACPlayer
+	: public ACharacter
+	, public IIRifle
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Rifle")
+		TSubclassOf<class ACRifle> RifleClass;
 
 private:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -28,6 +34,13 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	virtual bool IsEquipped_Rifle() override;
+
+	virtual void Begin_Equip_Rifle() override;
+	virtual void End_Equip_Rifle() override;
+	virtual void Begin_Unequip_Rifle() override;
+	virtual void End_Unequip_Rifle() override;
 
 private:
 	void OnMoveForward(float InAxisValue);
@@ -38,5 +51,12 @@ private:
 public:
 	void OnRun();
 	void OffRun();
+
+	void OnRifle();
+
+
+private:
+	class ACRifle* Rifle;
+
 
 };

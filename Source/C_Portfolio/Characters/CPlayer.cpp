@@ -7,7 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
-#include "Materials/MaterialInstanceDynamic.h"
+#include "Weapons/CRifle.h"
 
 ACPlayer::ACPlayer()
 {
@@ -37,12 +37,16 @@ ACPlayer::ACPlayer()
 	SpringArm->SocketOffset = FVector(0, 60, 0);
 	SpringArm->bEnableCameraLag = true;
 
+
+	CHelpers::GetClass<ACRifle>(&RifleClass, "Blueprint'/Game/Weapons/BP_Rifle_AR4.BP_Rifle_AR4_C'");
+
 }
 
 void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Rifle = ACRifle::Spawn(RifleClass, this);
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -63,7 +67,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ACPlayer::OnRun);
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ACPlayer::OffRun);
 
-
+	PlayerInputComponent->BindAction("Rifle", EInputEvent::IE_Pressed, this, &ACPlayer::OnRifle);
 }
 
 
@@ -102,3 +106,40 @@ void ACPlayer::OffRun()
 {
 	GetCharacterMovement()->MaxWalkSpeed = 400;
 }
+
+void ACPlayer::OnRifle()
+{
+	Rifle->Equip();
+}
+
+bool ACPlayer::IsEquipped_Rifle()
+{
+	return Rifle->IsEquipped();
+}
+
+void ACPlayer::Begin_Equip_Rifle()
+{
+	Rifle->Begin_Equip();
+}
+
+void ACPlayer::End_Equip_Rifle()
+{
+	Rifle->End_Equip();
+}
+
+void ACPlayer::Begin_Unequip_Rifle()
+{
+	Rifle->Begin_Unequip();
+}
+
+void ACPlayer::End_Unequip_Rifle()
+{
+	Rifle->End_Unequip();
+}
+
+
+
+
+
+
+

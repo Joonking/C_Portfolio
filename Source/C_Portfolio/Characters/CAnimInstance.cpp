@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "Weapons/IRifle.h"
+#include "Math/UnrealMathUtility.h"
 
 void UCAnimInstance::NativeBeginPlay()
 {
@@ -41,5 +42,17 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			forward = Owner->GetActorRotation();
 	}
 
-	Direction = CalculateDirection(Owner->GetVelocity(), Owner->GetControlRotation());
+	float tempDirection = CalculateDirection(Owner->GetVelocity(), Owner->GetControlRotation());
+
+	if (FMath::IsNearlyEqual(tempDirection, 0, 20))
+		Direction = 0;
+	else
+	{
+		if (FMath::IsNearlyEqual(tempDirection, 180, 30))
+			Direction = -180;
+		else
+			Direction = tempDirection;
+	}
+
+
 }

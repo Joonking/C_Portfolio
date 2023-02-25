@@ -37,6 +37,30 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 		TSubclassOf<class UCAim> AimClasses[(int32)EAimType::Max];
 
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		TSubclassOf<class ACBullet> BulletClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		float PitchAngle = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		float LimitPitchAngle = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		TSubclassOf<class UMatineeCameraShake> CameraShakeClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		class USoundWave* Sound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		class UParticleSystem* FlashParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		class UParticleSystem* EjectParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Trace")
+		float AimDistance = 3000.0f;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
@@ -55,16 +79,23 @@ public:
 	void Begin_Equip();
 	void End_Equip();
 
-private:
-	void Unequip();
 public:
+	void Unequip();
 	void Begin_Unequip();
 	void End_Unequip();
 
+public:
 	void Begin_Aim();
 	void End_Aim();
-
 	bool IsAiming();
+
+private:
+	UFUNCTION()
+		void Fire();
+
+public:
+	void Begin_Fire();
+	void End_Fire();
 
 protected:
 	virtual void BeginPlay() override;

@@ -1,6 +1,6 @@
 #include "Weapons/CRifle.h"
 #include "Global.h"
-//#include "CBullet.h"
+#include "CBullet.h"
 //#include "CUserWidget_AutoFire.h"
 #include "CAim.h"
 #include "Animation/AnimMontage.h"
@@ -28,12 +28,22 @@ ACRifle::ACRifle()
 	CHelpers::GetAsset<UAnimMontage>(&UngrabMontage, "AnimMontage'/Game/Character/Montages/Rifle/Equip/Rifle_UnEquip_Montage.Rifle_UnEquip_Montage'");
 
 	CHelpers::GetClass<UCAim>(&AimClasses[(int32)EAimType::Third], "Blueprint'/Game/Aim/BP_Aim_Third.BP_Aim_Third_C'");
+
+	CHelpers::GetClass<ACBullet>(&BulletClass, "Blueprint'/Game/Weapons/Bullet/BP_Bullet.BP_Bullet_C'");
+	CHelpers::GetClass<UMatineeCameraShake>(&CameraShakeClass, "Blueprint'/Game/CameraShake/BP_Fire.BP_Fire_C'");
+
+	CHelpers::GetAsset<USoundWave>(&Sound, "SoundWave'/Game/Sound/Shoot/S_RifleShoot.S_RifleShoot'");
+
+	CHelpers::GetAsset<UParticleSystem>(&FlashParticle, "ParticleSystem'/Game/Weapons/Bullet/Particle/VFX_Muzzleflash.VFX_Muzzleflash'");
+	CHelpers::GetAsset<UParticleSystem>(&EjectParticle, "ParticleSystem'/Game/Weapons/Bullet/Particle/VFX_Eject_bullet.VFX_Eject_bullet'");
+
 }
 
 ACRifle* ACRifle::Spawn(TSubclassOf<ACRifle> RifleClass, ACharacter* InOwner)
 {
 	FActorSpawnParameters params;
 	params.Owner = InOwner;
+
 	return InOwner->GetWorld()->SpawnActor<ACRifle>(RifleClass, params);
 }
 
@@ -138,4 +148,80 @@ bool ACRifle::IsAiming()
 		b |= Aims[(int32)EAimType::Third]->IsAiming();
 
 	return b;
+}
+
+
+void ACRifle::Fire()
+{
+	UCameraComponent* camera = CHelpers::GetComponent<UCameraComponent>(OwnerCharacter);
+	FVector direction = camera->GetForwardVector();
+	direction = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(direction, PitchAngle);
+
+
+	FTransform transform = camera->GetComponentToWorld();
+	FVector start = transform.GetLocation() + direction;
+	FVector end = transform.GetLocation() + direction * AimDistance;
+
+	//DrawDebugLine(GetWorld(), start, end, FColor::Green, true, 5);
+
+
+	FVector muzzleLocation = Mesh->GetSocketLocation("MuzzleFlash");
+
+	if (!!CameraShakeClass)
+		OwnerCharacter->GetController<APlayerController>()->PlayerCameraManager->StartCameraShake(CameraShakeClass);
+
+	if (!!Sound)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, muzzleLocation);
+
+	if (!!FlashParticle)
+		UGameplayStatics::SpawnEmitterAttached(FlashParticle, Mesh, "MuzzleFlash");
+
+	if (!!EjectParticle)
+		UGameplayStatics::SpawnEmitterAttached(EjectParticle, Mesh, "EjectBullet");
+
+	//Pitch Angle
+	{
+		CurrPitchAngle -= PitchAngle * GetWorld()->GetDeltaSeconds();
+
+		if (CurrPitchAngle > -LimitPitchAngle)
+			OwnerCharacter->AddControllerPitchInput(CurrPitchAngle);
+	}
+
+	//Spawn Bullet
+	{
+		FVector spawnLocation = muzzleLocation + direction * 50;
+
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		ACBullet* bullet = GetWorld()->SpawnActor<ACBullet>(BulletClass, spawnLocation, direction.Rotation());
+		bullet->Shoot(direction);
+	}
+}
+
+void ACRifle::Begin_Fire()
+{
+	CheckTrue(bEquipping);
+	CheckFalse(bEquipped);
+	CheckTrue(bFiring);
+
+	bFiring = true;
+	CurrPitchAngle = 0;
+
+	/*if (AutoFireWidget->GetOn())
+	{
+		GetWorld()->GetTimerManager().SetTimer(AutoFireHandle, this, &ACRifle::Fire, AutoFireInterval, true);
+
+		return;
+	}*/
+
+	Fire();
+}
+
+void ACRifle::End_Fire()
+{
+	//if (GetWorld()->GetTimerManager().IsTimerActive(AutoFireHandle))
+	//	GetWorld()->GetTimerManager().ClearTimer(AutoFireHandle);
+
+	bFiring = false;
 }

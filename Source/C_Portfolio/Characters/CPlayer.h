@@ -60,6 +60,9 @@ public:
 	void OnSubAction();
 	void OffSubAction();
 
+public:
+	void OnFire();
+	void OffFire();
 
 private:
 	class ACRifle* Rifle;

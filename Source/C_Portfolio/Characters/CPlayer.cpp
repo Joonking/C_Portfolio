@@ -72,6 +72,10 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);
 
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
+
+
 }
 
 
@@ -156,7 +160,15 @@ void ACPlayer::OffSubAction()
 	Rifle->End_Aim();
 }
 
+void ACPlayer::OnFire()
+{
+	Rifle->Begin_Fire();
+}
 
+void ACPlayer::OffFire()
+{
+	Rifle->End_Fire();
+}
 
 
 

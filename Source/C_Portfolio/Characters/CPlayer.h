@@ -34,14 +34,6 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-public:
-	virtual bool IsEquipped_Rifle() override;
-
-	virtual void Begin_Equip_Rifle() override;
-	virtual void End_Equip_Rifle() override;
-	virtual void Begin_Unequip_Rifle() override;
-	virtual void End_Unequip_Rifle() override;
-
 private:
 	void OnMoveForward(float InAxisValue);
 	void OnMoveRight(float InAxisValue);
@@ -52,7 +44,21 @@ public:
 	void OnRun();
 	void OffRun();
 
+public:
 	void OnRifle();
+
+public:
+	virtual bool IsEquipped_Rifle() override;
+	virtual bool IsAiming_Rifle() override;
+
+	virtual void Begin_Equip_Rifle() override;
+	virtual void End_Equip_Rifle() override;
+	virtual void Begin_Unequip_Rifle() override;
+	virtual void End_Unequip_Rifle() override;
+
+public:
+	void OnSubAction();
+	void OffSubAction();
 
 
 private:

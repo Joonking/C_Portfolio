@@ -16,8 +16,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Movement")
 		float Direction;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+		float Pitch;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Rifle")
 		bool bEquipped;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Rifle")
+		bool bAiming;
 
 public:
 	virtual void NativeBeginPlay() override;

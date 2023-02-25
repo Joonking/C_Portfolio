@@ -16,7 +16,7 @@ class C_PORTFOLIO_API IIRifle
 
 public:
 	virtual bool IsEquipped_Rifle() = 0;
-	//virtual bool IsAiming_Rifle() = 0;
+	virtual bool IsAiming_Rifle() = 0;
 
 	virtual void Begin_Equip_Rifle() = 0;
 	virtual void End_Equip_Rifle() = 0;

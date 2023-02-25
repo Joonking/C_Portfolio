@@ -4,6 +4,12 @@
 #include "GameFramework/Actor.h"
 #include "CRifle.generated.h"
 
+UENUM()
+enum class EAimType : uint8
+{
+	Third = 0, First, Max,
+};
+
 UCLASS()
 class C_PORTFOLIO_API ACRifle : public AActor
 {
@@ -27,6 +33,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montage_Play")
 		float UngrabMontageSpeed = 3;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
+		TSubclassOf<class UCAim> AimClasses[(int32)EAimType::Max];
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
@@ -52,6 +61,11 @@ public:
 	void Begin_Unequip();
 	void End_Unequip();
 
+	void Begin_Aim();
+	void End_Aim();
+
+	bool IsAiming();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -68,4 +82,7 @@ private:
 
 	float CurrPitchAngle;
 
+private:
+	UPROPERTY()
+		class UCAim* Aims[(int32)EAimType::Max];
 };

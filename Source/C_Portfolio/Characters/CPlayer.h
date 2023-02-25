@@ -64,6 +64,8 @@ public:
 	void OnFire();
 	void OffFire();
 
+	void OnAutoFire();
+
 private:
 	class ACRifle* Rifle;
 

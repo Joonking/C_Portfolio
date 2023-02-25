@@ -58,6 +58,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 		class UParticleSystem* EjectParticle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		TSubclassOf<class UCUserWidget_AutoFire> AutoFireWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		float AutoFireInterval = 0.1f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Trace")
 		float AimDistance = 3000.0f;
 
@@ -97,6 +103,8 @@ public:
 	void Begin_Fire();
 	void End_Fire();
 
+	void Toggle_AutoFire();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -112,6 +120,12 @@ private:
 	bool bFiring;
 
 	float CurrPitchAngle;
+
+private:
+	class UCUserWidget_AutoFire* AutoFireWidget;
+
+private:
+	FTimerHandle AutoFireHandle;
 
 private:
 	UPROPERTY()

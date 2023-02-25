@@ -75,7 +75,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
 
-
+	PlayerInputComponent->BindAction("AutoFire", EInputEvent::IE_Pressed, this, &ACPlayer::OnAutoFire);
 }
 
 
@@ -170,5 +170,8 @@ void ACPlayer::OffFire()
 	Rifle->End_Fire();
 }
 
-
+void ACPlayer::OnAutoFire()
+{
+	Rifle->Toggle_AutoFire();
+}
 

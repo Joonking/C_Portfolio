@@ -1,7 +1,7 @@
 #include "Weapons/CRifle.h"
 #include "Global.h"
 #include "CBullet.h"
-//#include "CUserWidget_AutoFire.h"
+#include "Widgets/CUserWidget_AutoFire.h"
 #include "CAim.h"
 #include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -37,6 +37,7 @@ ACRifle::ACRifle()
 	CHelpers::GetAsset<UParticleSystem>(&FlashParticle, "ParticleSystem'/Game/Weapons/Bullet/Particle/VFX_Muzzleflash.VFX_Muzzleflash'");
 	CHelpers::GetAsset<UParticleSystem>(&EjectParticle, "ParticleSystem'/Game/Weapons/Bullet/Particle/VFX_Eject_bullet.VFX_Eject_bullet'");
 
+	CHelpers::GetClass<UCUserWidget_AutoFire>(&AutoFireWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_CAutoFire.WB_CAutoFire_C'");
 }
 
 ACRifle* ACRifle::Spawn(TSubclassOf<ACRifle> RifleClass, ACharacter* InOwner)
@@ -54,6 +55,17 @@ void ACRifle::BeginPlay()
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),HolsterSocket);
+
+	if (!!AutoFireWidgetClass)
+	{
+		AutoFireWidget = CreateWidget<UCUserWidget_AutoFire, APlayerController>
+			(
+				OwnerCharacter->GetController<APlayerController>(),
+				AutoFireWidgetClass
+				);
+		AutoFireWidget->AddToViewport();
+		AutoFireWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 
 	Aims[(int32)EAimType::Third] = NewObject<UCAim>(this, AimClasses[(int32)EAimType::Third]);
 	Aims[(int32)EAimType::Third]->BeginPlay(OwnerCharacter, this);
@@ -91,7 +103,7 @@ void ACRifle::Begin_Equip()
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 
-	//AutoFireWidget->SetVisibility(ESlateVisibility::Visible);
+	AutoFireWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void ACRifle::End_Equip()
@@ -112,7 +124,7 @@ void ACRifle::Begin_Unequip()
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	//AutoFireWidget->SetVisibility(ESlateVisibility::Hidden);
+	AutoFireWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ACRifle::End_Unequip()
@@ -208,20 +220,28 @@ void ACRifle::Begin_Fire()
 	bFiring = true;
 	CurrPitchAngle = 0;
 
-	/*if (AutoFireWidget->GetOn())
+	if (AutoFireWidget->GetOn())
 	{
 		GetWorld()->GetTimerManager().SetTimer(AutoFireHandle, this, &ACRifle::Fire, AutoFireInterval, true);
 
 		return;
-	}*/
+	}
 
 	Fire();
 }
 
 void ACRifle::End_Fire()
 {
-	//if (GetWorld()->GetTimerManager().IsTimerActive(AutoFireHandle))
-	//	GetWorld()->GetTimerManager().ClearTimer(AutoFireHandle);
+	if (GetWorld()->GetTimerManager().IsTimerActive(AutoFireHandle))
+		GetWorld()->GetTimerManager().ClearTimer(AutoFireHandle);
 
 	bFiring = false;
+}
+
+void ACRifle::Toggle_AutoFire()
+{
+	AutoFireWidget->Toggle();
+
+	if (bFiring && AutoFireWidget->GetOn() == false)
+		End_Fire();
 }

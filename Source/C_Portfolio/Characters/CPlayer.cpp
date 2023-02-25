@@ -1,6 +1,6 @@
 #include "Characters/CPlayer.h"
 #include "Global.h"
-
+#include "CAnimInstance.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
@@ -21,10 +21,14 @@ ACPlayer::ACPlayer()
 	GetCharacterMovement()->MaxWalkSpeed = 400;
 
 	USkeletalMesh* mesh;
-	CHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Characters/Military/Mesh/SK_Military_Rebel5.SK_Military_Rebel5'");
+	CHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Character/Military/Mesh/SK_Military_Rebel5.SK_Military_Rebel5'");
 	GetMesh()->SetSkeletalMesh(mesh);
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+
+	TSubclassOf<UCAnimInstance> animInstance;
+	CHelpers::GetClass<UCAnimInstance>(&animInstance, "AnimBlueprint'/Game/Character/ABP_Character.ABP_Character_C'");
+	GetMesh()->SetAnimClass(animInstance);
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
 	SpringArm->TargetArmLength = 200;
@@ -56,6 +60,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("VerticalLook", this, &ACPlayer::OnVerticalLook);
 	PlayerInputComponent->BindAxis("HorizontalLook", this, &ACPlayer::OnHorizontalLook);
 
+	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ACPlayer::OnRun);
+	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ACPlayer::OffRun);
+
 
 }
 
@@ -84,4 +91,14 @@ void ACPlayer::OnVerticalLook(float InAxisValue)
 void ACPlayer::OnHorizontalLook(float InAxisValue)
 {
 	AddControllerYawInput(InAxisValue);
+}
+
+void ACPlayer::OnRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 600;
+}
+
+void ACPlayer::OffRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 400;
 }

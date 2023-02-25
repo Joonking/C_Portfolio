@@ -35,4 +35,8 @@ private:
 	void OnVerticalLook(float InAxisValue);
 	void OnHorizontalLook(float InAxisValue);
 
+public:
+	void OnRun();
+	void OffRun();
+
 };

@@ -13,15 +13,19 @@ class C_PORTFOLIO_API ACPlayer
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Rifle")
-		TSubclassOf<class ACRifle> RifleClass;
-
-private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
+
+protected:
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
+		class UCMoveComponent* Move;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Rifle")
+		TSubclassOf<class ACRifle> RifleClass;
 
 public:
 	ACPlayer();
@@ -34,15 +38,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
-	void OnMoveForward(float InAxisValue);
-	void OnMoveRight(float InAxisValue);
-	void OnVerticalLook(float InAxisValue);
-	void OnHorizontalLook(float InAxisValue);
 
-public:
-	void OnRun();
-	void OffRun();
 
 public:
 	void OnRifle();

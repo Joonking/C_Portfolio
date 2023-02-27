@@ -1,6 +1,7 @@
 #include "Characters/CPlayer.h"
 #include "Global.h"
 #include "Components/CMoveComponent.h"
+#include "Components/CStatusComponent.h"
 #include "CAnimInstance.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -9,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "Weapons/CRifle.h"
+
 
 ACPlayer::ACPlayer()
 {
@@ -20,6 +22,10 @@ ACPlayer::ACPlayer()
 
 	//MoveComponent
 	CHelpers::CreateActorComponent<UCMoveComponent>(this, &Move, "Move");
+	//StateComponent
+	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
+	//StatusComponent
+	CHelpers::CreateActorComponent<UCStatusComponent>(this, &Status, "Status");
 
 	//SkeletalMesh 설정
 	USkeletalMesh* mesh;
@@ -56,6 +62,9 @@ void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//델리게이트 연결
+	State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
+
 	Rifle = ACRifle::Spawn(RifleClass, this);
 }
 
@@ -68,11 +77,6 @@ void ACPlayer::Tick(float DeltaTime)
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//PlayerInputComponent->BindAxis("MoveForward", this, &ACPlayer::OnMoveForward);
-	//PlayerInputComponent->BindAxis("MoveRight", this, &ACPlayer::OnMoveRight);
-	//PlayerInputComponent->BindAxis("VerticalLook", this, &ACPlayer::OnVerticalLook);
-	//PlayerInputComponent->BindAxis("HorizontalLook", this, &ACPlayer::OnHorizontalLook);
 
 	//축매핑 이벤트 연결 ====================================================================
 	PlayerInputComponent->BindAxis("MoveForward", Move, &UCMoveComponent::OnMoveForward);
@@ -98,6 +102,18 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+//State 타입이 변경될때, 델리게이트에 의해 호출될 함수.
+void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
+{
+	//TODO: State 타입별 호출해줄 함수들 만들기.
+	switch (InNewType)
+	{
+	case EStateType::Hitted:
+		break;  
+	case EStateType::Dead:  
+		break;
+	}
+}
 
 void ACPlayer::OnRifle()
 {

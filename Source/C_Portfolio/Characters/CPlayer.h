@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/CStateComponent.h"
 #include "Weapons/IRifle.h"
 #include "CPlayer.generated.h"
 
@@ -11,6 +12,17 @@ class C_PORTFOLIO_API ACPlayer
 	, public IIRifle
 {
 	GENERATED_BODY()
+
+public:
+	ACPlayer();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -23,22 +35,20 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
 		class UCMoveComponent* Move;
 
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
+		UCStateComponent* State;
+
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
+		class UCStatusComponent* Status;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Rifle")
 		TSubclassOf<class ACRifle> RifleClass;
 
-public:
-	ACPlayer();
-
-protected:
-	virtual void BeginPlay() override;
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
+private:
+	//State 타입이 변경될때, 델리게이트에 의해 호출될 함수.
+	UFUNCTION()
+		void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 
 public:
 	void OnRifle();

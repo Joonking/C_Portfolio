@@ -15,6 +15,18 @@ class C_PORTFOLIO_API ACRifle : public AActor
 {
 	GENERATED_BODY()
 
+public:
+	ACRifle();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+
+public:
+	static ACRifle* Spawn(TSubclassOf<ACRifle> RifleClass, class ACharacter* InOwner);
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 		FName HolsterSocket = "Holster_Rifle";
@@ -59,6 +71,9 @@ private:
 		class UParticleSystem* EjectParticle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+		TSubclassOf<class UCUserWidget_Aim> AimWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 		TSubclassOf<class UCUserWidget_AutoFire> AutoFireWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
@@ -68,17 +83,14 @@ private:
 		float AimDistance = 3000.0f;
 
 protected:
+	UPROPERTY(BlueprintReadWrite)
+		class ACharacter* OwnerCharacter;
+
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
 
 public:
 	FORCEINLINE bool IsEquipped() { return bEquipped; }
-
-public:
-	static ACRifle* Spawn(TSubclassOf<ACRifle> RifleClass, class ACharacter* InOwner);
-
-public:	
-	ACRifle();
 
 public:
 	void Equip();
@@ -105,15 +117,6 @@ public:
 
 	void Toggle_AutoFire();
 
-protected:
-	virtual void BeginPlay() override;
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-private:
-	class ACharacter* OwnerCharacter;
-
 private:
 	bool bEquipping;
 	bool bEquipped;
@@ -122,7 +125,9 @@ private:
 	float CurrPitchAngle;
 
 private:
+	class UCUserWidget_Aim* AimWidget;
 	class UCUserWidget_AutoFire* AutoFireWidget;
+	
 
 private:
 	FTimerHandle AutoFireHandle;

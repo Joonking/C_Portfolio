@@ -1,6 +1,7 @@
 #include "Weapons/CRifle.h"
 #include "Global.h"
 #include "CBullet.h"
+#include "Widgets/CUserWidget_Aim.h"
 #include "Widgets/CUserWidget_AutoFire.h"
 #include "CAim.h"
 #include "Animation/AnimMontage.h"
@@ -12,7 +13,6 @@
 #include "Camera/CameraComponent.h"
 #include "Sound/SoundWave.h"
 #include "Particles/ParticleSystem.h"
-
 
 ACRifle::ACRifle()
 {
@@ -37,24 +37,27 @@ ACRifle::ACRifle()
 	CHelpers::GetAsset<UParticleSystem>(&FlashParticle, "ParticleSystem'/Game/Weapons/Bullet/Particle/VFX_Muzzleflash.VFX_Muzzleflash'");
 	CHelpers::GetAsset<UParticleSystem>(&EjectParticle, "ParticleSystem'/Game/Weapons/Bullet/Particle/VFX_Eject_bullet.VFX_Eject_bullet'");
 
-	CHelpers::GetClass<UCUserWidget_AutoFire>(&AutoFireWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_CAutoFire.WB_CAutoFire_C'");
+	CHelpers::GetClass<UCUserWidget_Aim>(&AimWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'");
+	CHelpers::GetClass<UCUserWidget_AutoFire>(&AutoFireWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_AutoFire.WB_AutoFire_C'");
 }
-
-ACRifle* ACRifle::Spawn(TSubclassOf<ACRifle> RifleClass, ACharacter* InOwner)
-{
-	FActorSpawnParameters params;
-	params.Owner = InOwner;
-
-	return InOwner->GetWorld()->SpawnActor<ACRifle>(RifleClass, params);
-}
-
 
 void ACRifle::BeginPlay()
 {
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
-	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),HolsterSocket);
+	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), HolsterSocket);
+
+	if (!!AimWidgetClass)
+	{
+		AimWidget = CreateWidget<UCUserWidget_Aim, APlayerController>
+			(
+				OwnerCharacter->GetController<APlayerController>(),
+				AimWidgetClass
+				);
+		AimWidget->AddToViewport();
+		AimWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 
 	if (!!AutoFireWidgetClass)
 	{
@@ -78,6 +81,15 @@ void ACRifle::Tick(float DeltaTime)
 	if (!!Aims[(int32)EAimType::Third])
 		Aims[(int32)EAimType::Third]->Tick(DeltaTime);
 }
+
+ACRifle* ACRifle::Spawn(TSubclassOf<ACRifle> RifleClass, ACharacter* InOwner)
+{
+	FActorSpawnParameters params;
+	params.Owner = InOwner;
+
+	return InOwner->GetWorld()->SpawnActor<ACRifle>(RifleClass, params);
+}
+
 
 
 void ACRifle::Equip()
@@ -103,6 +115,7 @@ void ACRifle::Begin_Equip()
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 
+	AimWidget->SetVisibility(ESlateVisibility::Visible);
 	AutoFireWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
@@ -124,6 +137,7 @@ void ACRifle::Begin_Unequip()
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 
+	AimWidget->SetVisibility(ESlateVisibility::Hidden);
 	AutoFireWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 

@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
 		class UCStatusComponent* Status;
 
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Components")
+		class UCWeaponComponent* Weapon;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Rifle")
 		TSubclassOf<class ACRifle> RifleClass;

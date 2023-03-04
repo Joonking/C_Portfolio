@@ -127,7 +127,6 @@ private:
 private:
 	class UCUserWidget_Aim* AimWidget;
 	class UCUserWidget_AutoFire* AutoFireWidget;
-	
 
 private:
 	FTimerHandle AutoFireHandle;

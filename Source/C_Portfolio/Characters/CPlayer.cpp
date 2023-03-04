@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "Components/CMoveComponent.h"
 #include "Components/CStatusComponent.h"
+#include "Components/CWeaponComponent.h"
 #include "CAnimInstance.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -26,6 +27,8 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	//StatusComponent
 	CHelpers::CreateActorComponent<UCStatusComponent>(this, &Status, "Status");
+	//WeaponComponent
+	CHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
 
 	//SkeletalMesh ¼³Á¤
 	USkeletalMesh* mesh;
@@ -90,6 +93,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, Move, &UCMoveComponent::OffRun);
 
 	PlayerInputComponent->BindAction("Rifle", EInputEvent::IE_Pressed, this, &ACPlayer::OnRifle);
+	PlayerInputComponent->BindAction("RifleTest", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetRifleMode);
 
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);
